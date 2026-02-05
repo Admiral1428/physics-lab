@@ -22,6 +22,7 @@ jobs:
           autoconf \
           autoconf-archive \
           libtool \
+          libltdl-dev \
           pkg-config \
           flex \
           bison \
