@@ -1,11 +1,11 @@
-name: Build
+name: Build (Linux + Windows)
 
 on:
   push:
   pull_request:
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -43,5 +43,29 @@ jobs:
     - name: Configure CMake
       run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
 
-    - name: Build
+    - name: Build (Linux)
+      run: cmake --build build --config Release
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+
+    - name: Install dependencies via vcpkg
+      run: |
+        .\vcpkg\vcpkg.exe install sdl3:x64-windows eigen3:x64-windows
+
+    - name: Configure CMake
+      shell: bash
+      run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows
+
+    - name: Build (Windows)
+      shell: bash
       run: cmake --build build --config Release
