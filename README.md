@@ -7,7 +7,7 @@ A modular 2D physics engine built in modern C++, featuring particle‑based flui
 * Integrated **SDL3** rendering layer within clean, modular architecture
 
 ## Planned Features
-* Particle‑based fluid simulation with adjustable viscosity
+* Simple particle‑based fluid simulations
 * Vendored **Eigen** library for linear algebra foundations
 * Rigid‑body dynamics for convex polygons and constraints
 * GPU acceleration of physics calculations using custom CUDA kernels

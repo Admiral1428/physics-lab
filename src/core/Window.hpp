@@ -2,7 +2,7 @@
 #define WINDOW_HPP
 
 #include <SDL3/SDL.h>
-#include "constants.hpp"
+#include "core/constants.hpp"
 
 class Window {
 public:
