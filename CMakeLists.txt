@@ -18,6 +18,8 @@ file(GLOB_RECURSE ENGINE_SOURCES src/*.cpp)
 
 add_executable(PhysicsLab ${ENGINE_SOURCES})
 
+target_include_directories(PhysicsLab PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 # Link SDL3
 target_link_libraries(PhysicsLab PRIVATE SDL3::SDL3)
 
