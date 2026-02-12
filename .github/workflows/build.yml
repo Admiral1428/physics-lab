@@ -38,7 +38,7 @@ jobs:
 
     - name: Install dependencies via vcpkg
       run: |
-        ./vcpkg/vcpkg install sdl3:x64-linux eigen3:x64-linux
+        ./vcpkg/vcpkg install sdl3:x64-linux eigen3:x64-linux rapidjson:x64-linux
 
     - name: Configure CMake
       run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -60,7 +60,7 @@ jobs:
 
     - name: Install dependencies via vcpkg
       run: |
-        .\vcpkg\vcpkg.exe install sdl3:x64-windows eigen3:x64-windows
+        .\vcpkg\vcpkg.exe install sdl3:x64-windows eigen3:x64-windows rapidjson:x64-windows
 
     - name: Configure CMake
       shell: bash

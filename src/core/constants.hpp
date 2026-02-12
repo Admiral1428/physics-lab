@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #include "core/types.hpp"
+#include <unordered_map>
+#include <string>
 
 namespace Constants 
 {
@@ -16,11 +18,31 @@ namespace Constants
     inline constexpr CoreTypes::Color BLUE      {  0,   0, 255, 255 };
     inline constexpr CoreTypes::Color ORANGE    {255,  69,   0, 255 };
     inline constexpr CoreTypes::Color GREEN     {  0, 255,   0, 255 };
+    inline constexpr CoreTypes::Color DKGREEN   {  0, 150,   0, 255 };
     inline constexpr CoreTypes::Color YELLOW    {255, 255,   0, 255 };
     inline constexpr CoreTypes::Color MAGENTA   {255,   0, 255, 255 };
     inline constexpr CoreTypes::Color CYAN      {  0, 255, 255, 255 };
     inline constexpr CoreTypes::Color BROWN     {150,  75,   0, 255 };
     inline constexpr CoreTypes::Color SKY_BLUE  {135, 206, 235, 255 };
+
+    // Map to store colors
+    inline const std::unordered_map<std::string, CoreTypes::Color> COLOR_MAP = 
+    {
+        {"BLACK",    BLACK},
+        {"WHITE",    WHITE},
+        {"GRAY",     GRAY},
+        {"RED",      RED},
+        {"BLUE",     BLUE},
+        {"ORANGE",   ORANGE},
+        {"GREEN",    GREEN},
+        {"DKGREEN",  DKGREEN},
+        {"YELLOW",   YELLOW},
+        {"MAGENTA",  MAGENTA},
+        {"CYAN",     CYAN},
+        {"BROWN",    BROWN},
+        {"SKY_BLUE", SKY_BLUE}
+    };
+
 
     // Target time interval for how often to update physics
     inline constexpr float PHYS_DT = 1.0f / 120.0f;

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find SDL3
 find_package(SDL3 CONFIG REQUIRED)
 
-# Find Eigen (system-installed)
+# Find Eigen
 find_package(Eigen3 REQUIRED)
 
 # Add include directory

@@ -2,6 +2,7 @@
 #include "core/Window.hpp"
 #include "core/Renderer.hpp"
 #include "core/Engine.hpp"
+#include "fileio/SceneLoader.hpp"
 #include "physics/PhysicsSystem.hpp"
 #include "physics/CpuParticleIntegrator.hpp"
 #include "physics/Particle.hpp"
@@ -21,8 +22,11 @@ int main()
         auto physics_system = std::make_unique<PhysicsSystem>(std::move(integrator));
 
         // Get particles for system
-        Particle test_particle;
-        physics_system->addParticle(test_particle);
+        std::vector<Particle> particles = loadParticles("input.json");
+        for (const auto & p : particles)
+        {
+            physics_system->addParticle(p);
+        }
 
         Engine engine(renderer, std::move(physics_system));
 
