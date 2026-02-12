@@ -6,6 +6,7 @@ A modular 2D physics engine built in modern C++, featuring particle‑based flui
 * Automated **Linux + Windows CI** using GitHub Actions
 * Integrated **SDL3** rendering layer within clean, modular architecture
 * Vendored **Eigen** library for linear algebra foundations
+* Data‑driven initialization through a **JSON** scene input file defining particle properties and initial state
 * Basic particle simulation with screen‑edge collision response using per-particle restitution and friction values
 
 ## Planned Features
@@ -16,4 +17,4 @@ A modular 2D physics engine built in modern C++, featuring particle‑based flui
 
 ## Current Demo
 
-https://github.com/user-attachments/assets/b6f0af39-4211-4dae-aeed-43da07ec5058
+https://github.com/user-attachments/assets/d5abbf48-b531-44d7-a691-1e53dafe7fcd
