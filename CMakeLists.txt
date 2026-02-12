@@ -10,9 +10,6 @@ find_package(SDL3 CONFIG REQUIRED)
 # Find Eigen
 find_package(Eigen3 REQUIRED)
 
-# Find RapidJSON
-find_package(rapidjson CONFIG REQUIRED)
-
 # Add include directory
 include_directories(include)
 
@@ -28,6 +25,3 @@ target_link_libraries(PhysicsLab PRIVATE SDL3::SDL3)
 
 # Link Eigen
 target_link_libraries(PhysicsLab PRIVATE Eigen3::Eigen)
-
-# Link RapidJSON
-target_link_libraries(PhysicsLab PRIVATE rapidjson)
