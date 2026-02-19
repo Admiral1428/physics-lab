@@ -20,13 +20,28 @@ void PhysicsSystem::update(float dt)
     applyGravity();
     integrator->step(particles, dt);
 
+    bool do_normal_impulse = true;
+
     // Multiple solver passes to help with collision detection stability
     for (int i = 0; i < Constants::SOLVER_ITERS; ++i)
     {
+        // Do normal impulse only on first solver iteration
+        if (i > 0)
+        {
+            do_normal_impulse = false;
+        }
         addParticlesToGrid();
-        checkParticleCollisions();
+        checkParticleCollisions(do_normal_impulse);
         checkScreenCollisions();
     }
+
+    stabilizeFloorContact();
+
+    for (auto& p : particles)
+    {
+        p.getPositionPrevious() = p.getPosition();
+    }
+
 }
 
 void PhysicsSystem::applyGravity() 
@@ -35,7 +50,8 @@ void PhysicsSystem::applyGravity()
     {
         auto& forces = p.getForces();
         auto mass = p.getMass();
-        forces += Eigen::Vector2f(0.0f, -Constants::GRAV * mass);
+
+        forces += Eigen::Vector2f(0.0f, Constants::GRAV * mass);
     }
 }
 
@@ -69,17 +85,17 @@ void PhysicsSystem::checkScreenCollisions()
         }
 
         // bottom wall (floor)
-        if (pos[1] - radius < -half_h)
+        if (pos[1] + radius > half_h)
         {
-            pos[1] = -half_h + radius;
-            vel[1] = -vel[1] * restitution;
+            pos[1] = half_h - radius;
+            vel[1] = -vel[1] * restitution; // Normal bounce
             vel[0] *= (1.0f - mu);
         }
 
         // top wall (ceiling)
-        if (pos[1] + radius > half_h)
+        if (pos[1] - radius < -half_h)
         {
-            pos[1] = half_h - radius;
+            pos[1] = -half_h + radius;
             vel[1] = -vel[1] * restitution;
             vel[0] *= (1.0f - mu);
         }
@@ -112,7 +128,7 @@ void PhysicsSystem::addParticlesToGrid()
     }
 }
 
-void PhysicsSystem::checkParticleCollisions()
+void PhysicsSystem::checkParticleCollisions(const bool & do_normal_impulse)
 {
     auto cellSize = Constants::CELL_SIZE;
 
@@ -144,7 +160,7 @@ void PhysicsSystem::checkParticleCollisions()
 
                 if (checkCollision(A, *B))
                 {
-                    resolveCollision(A, *B);
+                    resolveCollision(A, *B, do_normal_impulse);
                 }
             }
         }
@@ -174,7 +190,7 @@ bool PhysicsSystem::checkCollision(const Particle& A, const Particle& B)
     return false;
 }
 
-void PhysicsSystem::resolveCollision(Particle& A, Particle& B)
+void PhysicsSystem::resolveCollision(Particle& A, Particle& B, const bool & do_normal_impulse)
 {
     auto& posA = A.getPosition();
     auto& posB = B.getPosition();
@@ -191,44 +207,82 @@ void PhysicsSystem::resolveCollision(Particle& A, Particle& B)
     float restA = A.getRestituion();
     float restB = B.getRestituion();
 
-    // Determine collision normal
+    // Relative position
     Eigen::Vector2f delta = posB - posA;
     float dist = delta.norm();
-    Eigen::Vector2f coll_normal = (dist > 0.0f) ? delta / dist : Eigen::Vector2f(0.0f, 1.0f);
+
+    // Collision normal with stable fallback
+    Eigen::Vector2f coll_normal;
+    if (dist > 1e-8f)
+        coll_normal = delta / dist;
+    else
+        coll_normal = Eigen::Vector2f(1.0f, 0.0f); // deterministic fallback
+
+    float radSum = radA + radB;
+    float penetration = radSum - dist;
+
+    // If no penetration, no action
+    if (penetration <= 0.0f)
+        return;
 
     // Relative velocity
     Eigen::Vector2f vel_rel = velB - velA;
 
-    // Flip normal if needed
+    // Ensure normal points from A to B against relative motion
     if (vel_rel.dot(coll_normal) > 0.0f)
         coll_normal = -coll_normal;
 
     float vel_rel_normal = vel_rel.dot(coll_normal);
 
-    // If separating, no impulse
-    if (vel_rel_normal > 0.0f)
-        return;
+    // Impulse: only if approaching (not separating) and only if specified
+    if (do_normal_impulse && vel_rel_normal < 0.0f)
+    {
+        float e = std::min(restA, restB);
 
-    // Impulse
-    float j = -(1.0f + std::min(restA, restB)) * vel_rel_normal / (inv_massA + inv_massB);
-    Eigen::Vector2f j_vec = j * coll_normal;
+        float j = -(1.0f + e) * vel_rel_normal / (inv_massA + inv_massB);
+        Eigen::Vector2f j_vec = j * coll_normal;
 
-    velA -= j_vec * inv_massA;
-    velB += j_vec * inv_massB;
+        velA -= j_vec * inv_massA;
+        velB += j_vec * inv_massB;
+    }
 
-    // Positional correction
-    float penetration = radA + radB - dist;
-
-    // Clamp penetration
-    penetration = std::min(penetration, Constants::CLAMP_PEN * (radA + radB));
+    // Positional correction: always if penetration > 0
+    penetration = std::min(penetration, Constants::CLAMP_PEN * radSum);
 
     float correction = std::max(penetration - Constants::SLOP, 0.0f) * Constants::PCT;
-
-    // Clamp correction
-    correction = std::min(correction, Constants::CLAMP_CORR * (radA + radB));
+    correction = std::min(correction, Constants::CLAMP_CORR * radSum);
 
     Eigen::Vector2f corr_vec = correction * coll_normal;
 
-    posA -= corr_vec * (inv_massA / (inv_massA + inv_massB));
-    posB += corr_vec * (inv_massB / (inv_massA + inv_massB));
+    float invMassSum = inv_massA + inv_massB;
+    if (invMassSum > 0.0f)
+    {
+        posA -= corr_vec * (inv_massA / invMassSum);
+        posB += corr_vec * (inv_massB / invMassSum);
+    }
+}
+
+void PhysicsSystem::stabilizeFloorContact()
+{
+    float half_h = (Constants::RENDER_RES.height * 0.5f) / Constants::PIXELS_PER_METER;
+
+    for (auto& p : particles)
+    {
+        auto& pos_prev = p.getPositionPrevious();
+        auto& pos = p.getPosition();
+        auto& vel = p.getVelocity();
+        float radius = p.getRadius();
+
+        bool onFloor = (pos[1] + radius >= half_h);
+
+        // If particle on floor and vertical velocity is tiny, snap to resting state
+        if (onFloor && std::abs(vel[1]) < Constants::VEL_THRESHOLD)
+        {
+            pos[1] = half_h - radius;   // snap to floor
+            vel[1] = 0.0f;              // eliminate vertical jitter
+            pos_prev = pos;
+        } 
+    }
+
+    
 }
