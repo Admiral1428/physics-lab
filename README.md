@@ -11,11 +11,10 @@ A modular 2D physics engine built in modern C++, featuring particle‑based flui
 * **Impulse‑based particle–particle collision detection and resolution**, including positional correction and stability safeguards
 
 ## Planned Features
-* Further improvements to numerical stability and solver robustness for particle collisions
 * Rigid‑body dynamics for convex polygons and constraints
 * GPU acceleration of physics calculations using custom CUDA kernels
 * Continuous delivery of build artifacts (Linux + Windows)
 
 ## Current Demo
 
-https://github.com/user-attachments/assets/4c23f237-a9f7-4efd-89a4-989a548136df
+https://github.com/user-attachments/assets/1c0a31d0-6d88-4872-83e9-d369f04a8cb7
