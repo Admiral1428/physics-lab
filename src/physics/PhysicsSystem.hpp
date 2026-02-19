@@ -20,9 +20,10 @@ private:
     void checkScreenCollisions();
     size_t hashCell(int x, int y);
     void addParticlesToGrid();
-    void checkParticleCollisions();
+    void checkParticleCollisions(const bool & do_normal_impulse);
     bool checkCollision(const Particle& A, const Particle& B);
-    void resolveCollision(Particle& A, Particle& B);
+    void resolveCollision(Particle& A, Particle& B, const bool & do_normal_impulse);
+    void stabilizeFloorContact();
 
     std::vector<Particle> particles;
     std::unique_ptr<Integrator> integrator;

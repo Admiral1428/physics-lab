@@ -45,7 +45,7 @@ namespace Constants
 
 
     // Target time interval for how often to update physics
-    inline constexpr float PHYS_DT = 1.0f / 240.0f;
+    inline constexpr float PHYS_DT = 1.0f / 120.0f;
 
     // Max number of physics updates per rendering frame (prevent "spiral of death")
     inline constexpr int MAX_PHYS_STEPS = 5;
@@ -65,16 +65,19 @@ namespace Constants
     };
 
     // Solver iterations to help with stability of collision detection
-    inline constexpr int SOLVER_ITERS = 20;
+    inline constexpr int SOLVER_ITERS = 8;
 
-    // Constants for positional correction to prevent jitter
-    inline constexpr float SLOP = 0.002f;
-    inline constexpr float PCT = 0.3f;
-    inline constexpr float CLAMP_PEN = 0.05f;
-    inline constexpr float CLAMP_CORR = 0.02f;
+    // Constants for positional correction to prevent jitter and intersection
+    inline constexpr float SLOP = 0.001f;
+    inline constexpr float PCT = 1.2f;
+    inline constexpr float CLAMP_PEN = 0.8f;
+    inline constexpr float CLAMP_CORR = 1.0f;
 
     // Default gravity in meters per second squared
-    inline constexpr float GRAV = -9.81f;
+    inline constexpr float GRAV = 9.81f;
+
+    // Velocity threshold below which to not allow bounce on boundaries
+    inline constexpr float VEL_THRESHOLD = 0.1f;
 
 }
 

@@ -39,6 +39,12 @@ void Engine::run()
         
         double alpha = accumulator / PHYS_DT;  // Interpolation value between physics frames
         renderer.render(WHITE, alpha, particles);
+
+        for (auto & p: particles)
+        {
+            auto &vel = p.getVelocity();
+            auto &pos = p.getPosition();
+        }
     }
 }
 

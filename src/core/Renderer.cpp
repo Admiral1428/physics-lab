@@ -29,8 +29,12 @@ void Renderer::draw(double &alpha, std::vector<Particle>& particles)
         auto interp_pos = pos_previous * (1.0 - alpha) + pos * alpha;
 
         // convert world position to screen position
-        int sx = cx + static_cast<int>(interp_pos[0] * Constants::PIXELS_PER_METER); 
-        int sy = cy + static_cast<int>(interp_pos[1] * Constants::PIXELS_PER_METER); 
+        float sx_f = cx + interp_pos[0] * Constants::PIXELS_PER_METER;
+        float sy_f = cy + interp_pos[1] * Constants::PIXELS_PER_METER;
+
+        int sx = (int)std::round(sx_f);
+        int sy = (int)std::round(sy_f);
+
         int pixel_radius = static_cast<int>(radius * Constants::PIXELS_PER_METER); 
         drawFilledCircle(sx, sy, pixel_radius, color);
     }
